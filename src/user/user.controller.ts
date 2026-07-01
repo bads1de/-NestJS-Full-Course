@@ -8,9 +8,11 @@ import {
   Put,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserService } from './user.service';
+import { RoleGuard } from 'src/guards/role.guard';
 
 //静的ルートは動的ルートよりも前に記述する
 
@@ -46,6 +48,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(RoleGuard)
   deleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(Number(id));
   }
