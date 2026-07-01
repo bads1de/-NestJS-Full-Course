@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Post, Query, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Body,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserService } from './user.service';
 
 //静的ルートは動的ルートよりも前に記述する
 
@@ -12,41 +22,30 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {
+  constructor(private readonly userService: UserService) {}
+
   @Get()
-  getUsers(@Query('name') name: string) {
-    const users = [
-      { id: 1, name: 'John Doe' },
-      { id: 2, name: 'Jane Smith' },
-      { id: 3, name: 'Bob Johnson' },
-    ];
-
-    if (name) {
-      return users.filter((user) =>
-        user.name.toLowerCase().includes(name.toLowerCase()),
-      );
-    }
-
-    return users;
+  getUsers(@Query('name') name: string): unknown {
+    return this.userService.findAllUsers(name);
   }
 
   @Get(':id')
-  getUser(@Param('id') id: string) {
-    return { id, name: 'John Doe' };
+  getUserById(@Param('id') id: string) {
+    return this.userService.findOneUser(Number(id));
   }
 
   @Post()
   createUser(@Body() CreateUserDto: CreateUserDto) {
-    return { data: CreateUserDto, message: 'User created Successfully' };
+    return this.userService.createUser(CreateUserDto);
   }
 
   @Put(':id')
   updateUser(@Param('id') id: string, @Body() CreateUserDto: CreateUserDto) {
-    return {
-      data: {
-        id,
-        ...CreateUserDto,
-      },
-      message: 'User updated Successfully',
-    };
+    return this.userService.updateUser(Number(id), CreateUserDto);
+  }
+
+  @Delete(':id')
+  deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(Number(id));
   }
 }
