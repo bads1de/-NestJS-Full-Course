@@ -17,7 +17,10 @@ patterns and architecture decisions, not generic Node.js approaches.
 - Mark infrastructure modules @Global() and import once in AppModule
 - Feature modules go in src/module/<name>/
 - Shared guards, interceptors, decorators go in src/common/
-- Use Nest CLI: nest g module / nest g service / nest g controller
+## Nest CLI required
+
+**All modules / services / controllers MUST be generated via `nest g`.** Do not create files manually.
+Editing generated files is fine, but the files themselves must always be created through the CLI.
 
 ## Skills
 
