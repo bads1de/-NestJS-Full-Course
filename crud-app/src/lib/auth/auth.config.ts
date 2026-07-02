@@ -1,8 +1,8 @@
-import type { PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client';
 
 export async function createAuth(prisma: PrismaClient) {
-  const { betterAuth } = await import('better-auth')
-  const { prismaAdapter } = await import('better-auth/adapters/prisma')
+  const { betterAuth } = await import('better-auth');
+  const { prismaAdapter } = await import('better-auth/adapters/prisma');
 
   return betterAuth({
     database: prismaAdapter(prisma, {
@@ -11,7 +11,7 @@ export async function createAuth(prisma: PrismaClient) {
     emailAndPassword: {
       enabled: true,
     },
-  })
+  });
 }
 
-export type Auth = Awaited<ReturnType<typeof createAuth>>
+export type Auth = Awaited<ReturnType<typeof createAuth>>;
