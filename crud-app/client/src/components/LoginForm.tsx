@@ -1,22 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { authClient } from '../lib/auth-client'
 
 type Status = { type: 'idle' } | { type: 'loading' } | { type: 'error'; message: string } | { type: 'success'; message: string }
 
-export default function LoginForm() {
+export default function LoginForm({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isSignUp, setIsSignUp] = useState(false)
   const [name, setName] = useState('')
+  const [role, setRole] = useState('user')
   const [status, setStatus] = useState<Status>({ type: 'idle' })
-
-  useEffect(() => {
-    authClient.getSession().then(({ data }) => {
-      if (data) {
-        setStatus({ type: 'success', message: 'Signed in' })
-      }
-    })
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,12 +20,13 @@ export default function LoginForm() {
         email,
         password,
         name,
-      })
+        role,
+      } as { email: string; password: string; name: string; role: string })
       if (signUpError) {
         setStatus({ type: 'error', message: signUpError.message || signUpError.code || 'Sign up failed' })
         return
       }
-      setStatus({ type: 'success', message: 'Account created! You are now signed in.' })
+      onLogin?.()
     } else {
       const { error: signInError } = await authClient.signIn.email({
         email,
@@ -42,20 +36,8 @@ export default function LoginForm() {
         setStatus({ type: 'error', message: signInError.message || signInError.code || 'Sign in failed' })
         return
       }
-      setStatus({ type: 'success', message: 'Signed in successfully!' })
+      onLogin?.()
     }
-  }
-
-  if (status.type === 'success') {
-    return (
-      <div className="login-form">
-        <h1>Welcome</h1>
-        <p className="success">{status.message}</p>
-        <button type="button" onClick={async () => { await authClient.signOut(); setStatus({ type: 'idle' }); setEmail(''); setPassword(''); setName('') }}>
-          Sign out
-        </button>
-      </div>
-    )
   }
 
   return (
@@ -63,16 +45,29 @@ export default function LoginForm() {
       <h1>{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
       {status.type === 'error' && <p className="error">{status.message}</p>}
       {isSignUp && (
-        <div className="field">
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
+        <>
+          <div className="field">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </>
       )}
       <div className="field">
         <label htmlFor="email">Email</label>
